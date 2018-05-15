@@ -1,0 +1,104 @@
+# LogAnalystic.py用設定ファイル
+# LogAnalystic.pyと同じ階層に配置してください
+
+# 対象の年月
+target_yearmonth: "201803"
+
+# 出力ファイル xlsx
+output_file: "./analized_{target_yearmonth}.xlsx"
+
+#解析対象のログ配置場所
+input_directory:
+  dir_1: "C:/workspace/log_analistics/data/EVO23_1"
+  dir_2: "C:/workspace/log_analistics/data/EVO23_2"
+# dir_1: "C:/workspace/log_analistics/data/EVOTEST1"
+# dir_2: "C:/workspace/log_analistics/data/EVOTEST2"
+
+# ログのパースフォーマット
+formatter:
+  # 抽出キーワード
+  extract_keyword: "LOGIN     G"
+
+  # データ定義
+  #   切り出すデータは start, length を定義
+  #     convertにデータ変換用のpythonコードを記述する
+  #   他の列から加工するデータは reference, operation を定義
+  #     referenceで指定したデータは「_data_」変数に格納されるので
+  #     operationには_data_に対して実行するpythonコードを記述する
+  #   sortを指定すると最後にsortの番号順にソートされる
+  data_definition:
+    date:
+      header: "日付"
+      start: 11
+      length: 10
+      sort: 1  # ソート1番目
+      convert: "datetime.datetime.strptime(_data_, '%Y/%m/%d').date()"
+      filter: "depends_on_target_yearmonth"
+    time:
+      header: "時刻"
+      start: 22
+      length: 8
+      sort: 2  # ソート2番目
+      convert: "datetime.datetime.strptime(_data_, '%H:%M:%S')"
+    hour:
+      header: "時"
+      reference: "time"
+      operation: "_data_.hour"
+    weekday:
+      header: "曜日"
+      reference: "date"
+      operation: "'月火水木金土日'[_data_.weekday()]"
+    user_code:
+      header: "委託者コード"
+      start: 30
+      length: 9
+    session_id:
+      header: "セッションID"
+      start: 39
+      length: 8
+      sort: 3  # ソート3番目
+    gyomu_code:
+      header: "業務コード"
+      start: 47
+      length: 10
+    kino_code:
+      header: "機能コード"
+      start: 57
+      length: 1
+    itaku_kanri_kbn:
+      header: "委託管理区分"
+      start: 58
+      length: 1
+    login_kbn: 
+      header: "ログイン区分"
+      start: 59
+      length: 1
+      convert: "int(_data_)"
+    login_id:
+      header: "ログインID"
+      start: 60
+      length: 9
+    gyomu_kbn:
+      header: "業務区分"
+      start: 69
+      length: 1
+    updown_kbn:
+      header: "上り下り区分"
+      start: 70
+      length: 1
+    continual_id:
+      header: "連続ID"
+      start: 71
+      length: 1
+    language_kbn:
+      header: "言語区分"
+      start: 72
+      length: 1
+    data_size:
+      header: "データ長"
+      start: 79
+      length: 6
+
+
+# ログ出力先
+log_file: "./LogAnalystic.log"
